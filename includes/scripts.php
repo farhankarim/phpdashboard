@@ -86,11 +86,13 @@ $(document).ready(function () {
 
             console.log(data);
 
-            $('#update_id').val(data[0]);
-            $('#fname').val(data[1]);
-            $('#lname').val(data[2]);
-            $('#course').val(data[3]);
-            $('#contact').val(data[4]);
+            $('#update_id').val($.trim(data[0]));
+            $('#fname').val($.trim(data[1]));
+            $('#lname').val($.trim(data[2]));
+            $('#course').val($.trim(data[3]));
+            $('#contact').val($.trim(data[4]));
+            
+            // $('#img_path').val(data[5]);
     });
 });
 

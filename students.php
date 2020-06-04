@@ -4,6 +4,7 @@ session_start();
 include('includes/header.php'); 
 include('includes/nav.php'); 
 include('includes/database.php'); 
+include('includes/check_login.php'); 
 
 ?>
 
@@ -177,8 +178,8 @@ include('includes/database.php');
                             <th scope="col">First Name</th>
                             <th scope="col">Last Name </th>
                             <th scope="col"> Course </th>
-                            <th scope="col"> Image </th>
                             <th scope="col"> Contact </th>
+                            <th scope="col"> Image </th>
                             <th scope="col"> EDIT </th>
                             <th scope="col"> DELETE </th>
                         </tr>
@@ -195,8 +196,8 @@ include('includes/database.php');
                             <td> <?php echo $row['fname']; ?> </td>                            
                             <td> <?php echo $row['lname']; ?> </td>                            
                             <td> <?php echo $row['course']; ?> </td>                            
-                            <td><img height="100" src="uploads/<?php  echo trim($row["img_path"])?>"></td>                            
-                            <td> <?php echo $row['contact']; ?> </td>                            
+                            <td> <?php echo $row['contact']; ?> </td>  
+                            <td style="color:#f8f9fc;"><?php echo $row['img_path']; ?><img height="100" src="uploads/<?php  echo trim($row["img_path"])?>"></td>                           
                             <td> 
                                 <button type="button" class="btn btn-success editbtn"> EDIT </button>
                             </td> 
@@ -217,6 +218,7 @@ include('includes/database.php');
 </div>
 
 <!-- scripts here -->
+
 
 <!-- crud here -->
 <?php
@@ -258,8 +260,15 @@ if(isset($_POST['deletedata']))
 {
     $id = $_POST['delete_id'];
 
+    // DELETE IMAGE
+    $query = "select * from student WHERE id='$id'";
+    $query_run = mysqli_query($connection, $query);
+
+    // DELETE RECORD
     $query = "DELETE FROM student WHERE id='$id'";
     $query_run = mysqli_query($connection, $query);
+
+
 
     if($query_run)
     {
@@ -283,21 +292,52 @@ if(isset($_POST['deletedata']))
         $lname = $_POST['lname'];
         $course = $_POST['course'];
         $contact = $_POST['contact'];
-        $img_path = $_POST['img_path'];
+
+            // get the name of file
+            $c_image = $_FILES['img_path']['name'];
+            
+            if($c_image){
+                // get the location of file in chrome temp folder
+            $c_image_tmp = $_FILES['img_path']['tmp_name'];
+            // move the file from temp folder to server folder named uploads
+            move_uploaded_file($c_image_tmp,"uploads/$c_image");
 
 
-        // get the name of file
-        $c_image = $_FILES['img_path']['name'];
-        // get the location of file in chrome temp folder
-        $c_image_tmp = $_FILES['img_path']['tmp_name'];
-        // move the file from temp folder to server folder named uploads
-        move_uploaded_file($c_image_tmp,"uploads/$c_image");
-    
+            $query = "UPDATE student SET fname='$fname', lname='$lname', course='$course', contact=' $contact', img_path=' $c_image' WHERE id='$id'  ";
+            $query_run = mysqli_query($connection, $query);
+            if($query_run)
+                {
+                    $_SESSION['success']="Data Updated";
+                    header('Location: students.php');
+                }
+                else
+                {
+                    $_SESSION['danger']="Data Not Updated";
+                    header('Location: students.php');
+                }
+            }
+
+           else{
+                // get the location of file in chrome temp folder
+            $query = "UPDATE student SET fname='$fname', lname='$lname', course='$course', contact=' $contact' WHERE id='$id'  ";
+            $query_run = mysqli_query($connection, $query);
+            if($query_run)
+                {
+                    $_SESSION['success']="Data Updated No Image";
+                    header('Location: students.php');
+                }
+                else
+                {
+                    $_SESSION['danger']="Data Not Updated";
+                    header('Location: students.php');
+                }
+            }
+            
         
-        $query = "UPDATE student SET fname='$fname', lname='$lname', course='$course', contact=' $contact', img_path=' $c_image' WHERE id='$id'  ";
-        $query_run = mysqli_query($connection, $query);
 
-        if($query_run)
+        
+
+    if($query_run)
     {
         $_SESSION['success']="Data Updated";
         header('Location: students.php');
