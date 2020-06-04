@@ -17,7 +17,7 @@ include('includes/database.php');
         </button>
       </div>
 
-        <form action="<?php echo $_SERVER["PHP_SELF"];?> " method="POST">
+        <form action="<?php echo $_SERVER["PHP_SELF"];?> " method="POST" enctype="multipart/form-data">
 
             <div class="modal-body">
                 <div class="form-group">
@@ -38,6 +38,10 @@ include('includes/database.php');
                 <div class="form-group">
                     <label> Phone Number </label>
                     <input type="number" name="contact" class="form-control" placeholder="Enter Phone Number">
+                </div>
+                <div class="form-group">
+                    <label> image </label>
+                    <input type="file" name="img_path" class="form-control" placeholder="Enter Phone Number">
                 </div>
             </div>
             <div class="modal-footer">
@@ -67,7 +71,7 @@ include('includes/database.php');
         </button>
       </div>
 
-        <form action="<?php echo $_SERVER["PHP_SELF"];?> " method="POST">
+        <form action="<?php echo $_SERVER["PHP_SELF"];?> " method="POST" enctype="multipart/form-data">
 
             <div class="modal-body">
 
@@ -91,6 +95,10 @@ include('includes/database.php');
                 <div class="form-group">
                     <label> Phone Number </label>
                     <input type="text" name="contact" id="contact" class="form-control" placeholder="Enter Phone Number">
+                </div>
+                <div class="form-group">
+                    <label> Image </label>
+                    <input type="file" name="img_path" id="img_path">
                 </div>
             </div>
             <div class="modal-footer">
@@ -169,6 +177,7 @@ include('includes/database.php');
                             <th scope="col">First Name</th>
                             <th scope="col">Last Name </th>
                             <th scope="col"> Course </th>
+                            <th scope="col"> Image </th>
                             <th scope="col"> Contact </th>
                             <th scope="col"> EDIT </th>
                             <th scope="col"> DELETE </th>
@@ -186,6 +195,7 @@ include('includes/database.php');
                             <td> <?php echo $row['fname']; ?> </td>                            
                             <td> <?php echo $row['lname']; ?> </td>                            
                             <td> <?php echo $row['course']; ?> </td>                            
+                            <td><img height="100" src="uploads/<?php  echo trim($row["img_path"])?>"></td>                            
                             <td> <?php echo $row['contact']; ?> </td>                            
                             <td> 
                                 <button type="button" class="btn btn-success editbtn"> EDIT </button>
@@ -217,8 +227,18 @@ if(isset($_POST['insertdata']))
     $lname = $_POST['lname'];
     $course = $_POST['course'];
     $contact = $_POST['contact'];
+    $img_path = $_POST['img_path'];
 
-    $query = "INSERT INTO student (`fname`,`lname`,`course`,`contact`) VALUES ('$fname','$lname','$course','$contact')";
+            // get the name of file
+            $c_image = $_FILES['img_path']['name'];
+            // get the location of file in chrome temp folder
+            $c_image_tmp = $_FILES['img_path']['tmp_name'];
+            // move the file from temp folder to server folder named uploads
+            move_uploaded_file($c_image_tmp,"uploads/$c_image");
+
+    
+
+    $query = "INSERT INTO student (`fname`,`lname`,`course`,`contact`,`img_path`) VALUES ('$fname','$lname','$course','$contact','$c_image')";
     $query_run = mysqli_query($connection, $query);
 
     if($query_run)
@@ -263,8 +283,18 @@ if(isset($_POST['deletedata']))
         $lname = $_POST['lname'];
         $course = $_POST['course'];
         $contact = $_POST['contact'];
+        $img_path = $_POST['img_path'];
 
-        $query = "UPDATE student SET fname='$fname', lname='$lname', course='$course', contact=' $contact' WHERE id='$id'  ";
+
+        // get the name of file
+        $c_image = $_FILES['img_path']['name'];
+        // get the location of file in chrome temp folder
+        $c_image_tmp = $_FILES['img_path']['tmp_name'];
+        // move the file from temp folder to server folder named uploads
+        move_uploaded_file($c_image_tmp,"uploads/$c_image");
+    
+        
+        $query = "UPDATE student SET fname='$fname', lname='$lname', course='$course', contact=' $contact', img_path=' $c_image' WHERE id='$id'  ";
         $query_run = mysqli_query($connection, $query);
 
         if($query_run)
